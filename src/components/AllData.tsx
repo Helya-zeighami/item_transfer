@@ -72,7 +72,7 @@ export default function AllData() {
   };
 
   const updateSelectedGroups = () => {
-    setSelectedGroups((prevGroups) => {
+    setSelectedGroups(() => {
       const updatedGroups: Record<string, boolean> = {};
 
       Object.keys(groupedItems).forEach((groupId) => {
