@@ -1,14 +1,12 @@
 import { create } from "zustand";
 import { items } from "@/mocks/items";
-import {Item} from "@/types";
+import { Item } from "@/types";
 
 type ItemStore = {
     items: Item[];
     selectedItems: Item[];
     addItem: (item: Item) => void;
     removeItem: (uniqueId: number) => void;
-    addAll: () => void;
-    removeAll: () => void;
 };
 
 export const useItemStore = create<ItemStore>((set) => ({
@@ -25,23 +23,13 @@ export const useItemStore = create<ItemStore>((set) => ({
         set((state) => {
             const itemToRemove = state.selectedItems.find((i) => i.uniqueId === uniqueId);
             if (itemToRemove) {
+                const updatedItems = [...state.items, itemToRemove].sort((a, b) => a.uniqueId - b.uniqueId);
+                const updatedSelectedItems = state.selectedItems.filter((i) => i.uniqueId !== uniqueId);
                 return {
-                    items: [...state.items, itemToRemove],
-                    selectedItems: state.selectedItems.filter((i) => i.uniqueId !== uniqueId),
+                    items: updatedItems,
+                    selectedItems: updatedSelectedItems,
                 };
             }
             return state;
         }),
-
-    addAll: () =>
-        set((state) => ({
-            selectedItems: [...state.items],
-            items: [],
-        })),
-
-    removeAll: () =>
-        set((state) => ({
-            items: [...state.selectedItems],
-            selectedItems: [],
-        })),
 }));
