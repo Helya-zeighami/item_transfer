@@ -1,13 +1,17 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import { useItemStore } from "@/store/useSelectionStore";
 import { Item } from "@/types";
 
 export default function AllData() {
   const { items, addItem } = useItemStore();
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {}
+  );
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>({});
+  const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const groupedItems = items.reduce<Record<string, Item[]>>((acc, item) => {
     const groupId = String(item.id);
@@ -48,7 +52,9 @@ export default function AllData() {
     if (newSelection) {
       groupItems.forEach((item) => updatedSelection.add(String(item.uniqueId)));
     } else {
-      groupItems.forEach((item) => updatedSelection.delete(String(item.uniqueId)));
+      groupItems.forEach((item) =>
+        updatedSelection.delete(String(item.uniqueId))
+      );
     }
 
     setSelectedItems(updatedSelection);
@@ -65,16 +71,6 @@ export default function AllData() {
     updateSelectedGroups();
   };
 
-  const removeSelectedItem = (itemId: string) => {
-    setSelectedItems((prev) => {
-      const updatedSelection = new Set(prev);
-      updatedSelection.delete(String(itemId));
-      return updatedSelection;
-    });
-
-    updateSelectedGroups();
-  };
-
   const updateSelectedGroups = () => {
     setSelectedGroups((prevGroups) => {
       const updatedGroups: Record<string, boolean> = {};
@@ -82,7 +78,7 @@ export default function AllData() {
       Object.keys(groupedItems).forEach((groupId) => {
         const groupItems = groupedItems[groupId];
         updatedGroups[groupId] = groupItems.every((item) =>
-            selectedItems.has(String(item.uniqueId))
+          selectedItems.has(String(item.uniqueId))
         );
       });
 
@@ -95,74 +91,79 @@ export default function AllData() {
   }, [selectedItems]);
 
   return (
-      <div className="w-1/2 p-4 bg-white rounded-md shadow-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">All Data</h2>
-          <button
-              className={`px-3 py-1  ${selectedItems.size === 0?'bg-gray-300':'bg-blue-500'} text-white rounded`}
-              onClick={addSelectedItems}
-              disabled={selectedItems.size === 0}
-          >
-            Add Selected
-          </button>
-        </div>
+    <div className="w-1/2 p-4 bg-white rounded-md shadow-md">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold">All Data</h2>
+        <button
+          className={`px-3 py-1  ${
+            selectedItems.size === 0 ? "bg-gray-300" : "bg-blue-500"
+          } text-white rounded`}
+          onClick={addSelectedItems}
+          disabled={selectedItems.size === 0}
+        >
+          Add Selected
+        </button>
+      </div>
 
-        {items.length === 0 ? (
-            <p className="text-gray-500">No available items</p>
-        ) : (
-            Object.entries(groupedItems).map(([groupId, groupItems]) => {
-              const groupIsSelected = selectedGroups[groupId] || false;
+      {items.length === 0 ? (
+        <p className="text-gray-500">No available items</p>
+      ) : (
+        Object.entries(groupedItems).map(([groupId, groupItems]) => {
+          const groupIsSelected = selectedGroups[groupId] || false;
 
-              return (
-                  <div key={groupId} className="mb-4 border border-gray-300 rounded-md">
-                    <div
-                        className="p-3 bg-gray-200 cursor-pointer flex justify-between items-center"
-                        onClick={() => toggleGroup(groupId)}
-                    >
-                      <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            checked={groupIsSelected}
-                            onChange={() => toggleGroupSelection(groupId)}
-                            className="mr-2"
-                        />
-                        <span className="font-semibold">
+          return (
+            <div
+              key={groupId}
+              className="mb-4 border border-gray-300 rounded-md"
+            >
+              <div
+                className="p-3 bg-gray-200 cursor-pointer flex justify-between items-center"
+                onClick={() => toggleGroup(groupId)}
+              >
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={groupIsSelected}
+                    onChange={() => toggleGroupSelection(groupId)}
+                    className="mr-2"
+                  />
+                  <span className="font-semibold">
                     Group {groupId} ({groupItems.length})
                   </span>
-                      </div>
-                      <span>{expandedGroups[groupId] ? "▲" : "▼"}</span>
-                    </div>
+                </div>
+                <span>{expandedGroups[groupId] ? "▲" : "▼"}</span>
+              </div>
 
-                    {expandedGroups[groupId] && (
-                        <div className="p-3">
-                          {groupItems.map((item) => {
-                            const stringItemId = String(item.uniqueId);
-                            return (
-                                <div
-                                    key={stringItemId}
-                                    className="p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center"
-                                >
-                                  <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.has(stringItemId)}
-                                        onChange={() => toggleItemSelection(stringItemId)}
-                                        className="mr-2"
-                                    />
-                                    <span>
+              {expandedGroups[groupId] && (
+                <div className="p-3">
+                  {groupItems.map((item) => {
+                    const stringItemId = String(item.uniqueId);
+                    return (
+                      <div
+                        key={stringItemId}
+                        className="p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center"
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedItems.has(stringItemId)}
+                            onChange={() => toggleItemSelection(stringItemId)}
+                            className="mr-2"
+                          />
+                          <span>
                             {item.title} -{" "}
-                                      {new Date(item.created).toLocaleDateString()}
+                            {new Date(item.created).toLocaleDateString()}
                           </span>
-                                  </div>
-                                </div>
-                            );
-                          })}
                         </div>
-                    )}
-                  </div>
-              );
-            })
-        )}
-      </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
   );
 }
